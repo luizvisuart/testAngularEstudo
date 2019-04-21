@@ -132,6 +132,17 @@ describe('Testando o AngularJS Test Suite', function () {
 
         var scope, template, httpBackend, isolateScope;
 
+        beforeEach(function () {
+            module(function ($provide) {
+                var MockedConversionService = {
+                    converterKelvinToCelsius: function (temp) {
+                        return Math.round(temp - 273);
+                    }
+                }
+                $provide.value('conversionService', MockedConversionService);
+            });
+        });
+
         beforeEach(inject(function ($compile, $httpBackend, $rootScope) {
             rootScope = $rootScope;
             scope = rootScope.$new();
@@ -155,6 +166,27 @@ describe('Testando o AngularJS Test Suite', function () {
         afterEach(function () {
             httpBackend.verifyNoOutstandingExpectation();
             httpBackend.verifyNoOutstandingRequest();
+        });
+
+        it('deve apresentar a mensagem quando o server der erro', function () {
+            var retorno = {
+                error: {
+                    "data": { message: 'Error' }
+                }
+            };
+            scope.destination =
+                {
+                    city: "Melbourne",
+                    country: "Australia"
+                };
+
+            httpBackend.expectGET("http://api.openweathermap.org/data/2.5/weather?q=" + scope.destination.city + "&appid=" + scope.apiKey).respond(500);
+
+            isolateScope.getWeather(scope.destination);
+
+            httpBackend.flush();
+
+            expect(rootScope.message).toBe('Error');
         });
 
         it('deve atualizar o tempo para um destino específico', function () {

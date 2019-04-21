@@ -1,6 +1,6 @@
 var testingAngluarApp = angular.module('testingAngularApp', []);
 
-testingAngluarApp.controller('testingAngularCtrl', function ($rootScope, $scope, $http, $timeout) {
+testingAngluarApp.controller('testingAngularCtrl', function ($rootScope, $scope, $timeout) {
 
     $scope.title = "Testing AngularJS Applications";
 
@@ -59,22 +59,30 @@ testingAngluarApp.directive('destinationDirective', function () {
             '<span ng-if="destination.weather">{{ destination.weather.main }},{{ destination.weather.temp }}</span>' +
             '<button ng-click="onRemove()">Remove</button>' +
             '<button ng-click="getWeather(destination)">Update Tempo</button>',
-        controller: function ($http, $rootScope, $scope) {
+        controller: function ($http, $rootScope, $scope, conversionService) {
             $scope.getWeather = function (destination) {
                 $http.get("http://api.openweathermap.org/data/2.5/weather?q=" + destination.city + "&appid=" + $scope.apiKey).then(function successCallback(response) {
                     if (response.data.weather) {
                         destination.weather = {};
                         destination.weather.main = response.data.weather[0].main;
-                        destination.weather.temp = $scope.converterKelvinToCelsius(response.data.main.temp);
+                        destination.weather.temp = conversionService.converterKelvinToCelsius(response.data.main.temp);
                     }
                 }, function errorCallback(error) {
-                    $rootScope.message = error.data.message;
+                    // $rootScope.message = error.data.message;
+                    $rootScope.message = "Error";
                 })
             };
 
-            $scope.converterKelvinToCelsius = function (temp) {
-                return Math.round(temp - 273);
-            }
         }
     }
-})
+});
+
+testingAngluarApp.service('conversionService', function () {
+
+    this.converterKelvinToCelsius = function (temp) {
+        return Math.round(temp - 273);
+    }
+
+    return this;
+
+});
