@@ -202,6 +202,5 @@ describe('Testando o AngularJS Test Suite', function () {
 
             expect(templateAsHtml).toContain('London, England');
         });
-
     });
 });
