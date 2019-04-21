@@ -70,6 +70,7 @@ testingAngluarApp.directive('destinationDirective', function () {
                 }, function errorCallback(error) {
                     // $rootScope.message = error.data.message;
                     $rootScope.message = "Error";
+                    $rootScope.$broadcast('messageUpdate', { type: 'error', message: 'Server error' });
                 })
             };
 

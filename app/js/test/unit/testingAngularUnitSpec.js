@@ -82,6 +82,7 @@ describe('Testando o AngularJS Test Suite', function () {
             timeout.flush();
 
             expect(rootScope.message).toBeNull();
+
         });
     });
 
@@ -143,10 +144,11 @@ describe('Testando o AngularJS Test Suite', function () {
             });
         });
 
-        beforeEach(inject(function ($compile, $httpBackend, $rootScope) {
+        beforeEach(inject(function ($compile, $httpBackend, $rootScope, _conversionService_) {
             rootScope = $rootScope;
             scope = rootScope.$new();
             httpBackend = $httpBackend;
+            conversionService = _conversionService_;
 
             scope.apiKey = 'xyz';
 
@@ -169,11 +171,7 @@ describe('Testando o AngularJS Test Suite', function () {
         });
 
         it('deve apresentar a mensagem quando o server der erro', function () {
-            var retorno = {
-                error: {
-                    "data": { message: 'Error' }
-                }
-            };
+            spyOn(rootScope, '$broadcast');
             scope.destination =
                 {
                     city: "Melbourne",
@@ -187,9 +185,20 @@ describe('Testando o AngularJS Test Suite', function () {
             httpBackend.flush();
 
             expect(rootScope.message).toBe('Error');
+            expect(rootScope.$broadcast).toHaveBeenCalled();
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('messageUpdate', { type: 'error', message: 'Server error' });
+            expect(rootScope.$broadcast.calls.count()).toBe(1);
         });
 
         it('deve atualizar o tempo para um destino específico', function () {
+
+            // spyOn(conversionService, 'converterKelvinToCelsius').and.callThrough(); // usa o original
+
+            // spyOn(conversionService, 'converterKelvinToCelsius').and.returnValue(15);  // um retorno esperado
+
+            spyOn(conversionService, 'converterKelvinToCelsius').and.callFake(function (temp) { // implementando
+                return temp - 273;
+            });
             scope.destination =
                 {
                     city: "Melbourne",
@@ -209,6 +218,7 @@ describe('Testando o AngularJS Test Suite', function () {
 
             expect(scope.destination.weather.main).toBe("Rain");
             expect(scope.destination.weather.temp).toBe(15);
+            expect(conversionService.converterKelvinToCelsius).toHaveBeenCalledWith(288);
         });
 
         it('deve chamar a função de remoção do controlador pai', function () {
