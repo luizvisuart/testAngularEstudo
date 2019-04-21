@@ -1,3 +1,4 @@
 node_modules
 app/bower_components
 package-lock.json
+app/js/test/coverage
