@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Sun Oct 25 2015 12:32:31 GMT+0100 (CET)
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -30,6 +30,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      '../../*.html': ['ng-html2js']
     },
 
 

@@ -1,16 +1,14 @@
-describe("Primeiro suit para Teste", function () {
+describe('Testing AngularJS Test Suite', function () {
 
-    beforeEach(function () {
-        module('testingAngularApp');
-    });
+    beforeEach(module('testingAngularApp'));
 
-    describe(" - Teste AngularJS Controller - ", function () {
-
-        var scope, controller, httpBackend, timeout;
+    describe('Testing AngularJS Controller', function () {
+        var scope, ctrl, httpBackend, timeout, rootScope;
 
         beforeEach(inject(function ($controller, $rootScope, $httpBackend, $timeout) {
+            rootScope = $rootScope;
             scope = $rootScope.$new();
-            controller = $controller('testingAngularCtrl', { $scope: scope });
+            ctrl = $controller('testingAngularCtrl', { $scope: scope });
             httpBackend = $httpBackend;
             timeout = $timeout;
         }));
@@ -20,102 +18,190 @@ describe("Primeiro suit para Teste", function () {
             httpBackend.verifyNoOutstandingRequest();
         });
 
-        it("Deve inicializar o titulo do scopo", function () {
+        it('should initialize the title in the scope', function () {
             expect(scope.title).toBeDefined();
             expect(scope.title).toBe("Testing AngularJS Applications");
         });
 
-        it("Deve adicionar dois destinos a lista de destino", function () {
+        it('should add 2 destinations', function () {
             expect(scope.destinations).toBeDefined();
             expect(scope.destinations.length).toBe(0);
-            expect(scope.destinations).toEqual([]);
 
-            scope.newDestination = {
-                city: "London",
-                country: "England"
-            };
+            scope.newDestination =
+                {
+                    city: "London",
+                    country: "England"
+                };
 
             scope.addDestination();
+
             expect(scope.destinations.length).toBe(1);
+            expect(scope.destinations[0].city).toBe("London");
+            expect(scope.destinations[0].country).toBe("England");
 
-
-            scope.newDestination = {
-                city: "Frankfurt",
-                country: "Germany"
-            };
-
+            scope.newDestination.city = "Frankfurt";
+            scope.newDestination.country = "Germany";
             scope.addDestination();
-            expect(scope.destinations.length).toBe(2);
-            expect(scope.destinations[0].city).toBe('London');
-            expect(scope.destinations[0].country).toBe('England');
-            expect(scope.destinations[1].city).toBe('Frankfurt');
-            expect(scope.destinations[1].country).toBe('Germany');
-        });
-
-        it("Deve remover um destino da lista conforme o index do mesmo", function () {
-            scope.destinations = [
-                { city: "London", country: "England" },
-                { city: "Brasília", country: "Brasil" },
-                { city: "Frankfurt", country: "Germany" }
-            ];
-
-            expect(scope.destinations.length).toBe(3);
-
-            scope.removeDestination(1);
 
             expect(scope.destinations.length).toBe(2);
-            expect(scope.destinations[0].city).toEqual('London');
-            expect(scope.destinations[1].city).toEqual('Frankfurt');
+            expect(scope.destinations[1].city).toBe("Frankfurt");
+            expect(scope.destinations[1].country).toBe("Germany");
         });
 
-        it("Deve atualizar o tempo para um destino específico", function () {
+        it('should remove a destination from the destinations list', function () {
+            scope.destinations =
+                [
+                    {
+                        city: "Paris",
+                        country: "France"
+                    },
+                    {
+                        city: "Warsaw",
+                        country: "Poland"
+                    }
+                ];
+
+            expect(scope.destinations.length).toBe(2);
+            expect(scope.destinations[0].city).toBe("Paris");
+            expect(scope.destinations[0].country).toBe("France");
+            expect(scope.destinations[1]).toBeDefined();
+
+            scope.removeDestination(0);
+
+            expect(scope.destinations.length).toBe(1);
+            expect(scope.destinations[0].city).toBe("Warsaw");
+            expect(scope.destinations[0].country).toBe("Poland");
+            expect(scope.destinations[1]).toBeUndefined();
+        });
+
+        it('should remove error message after a fixed period of time', function () {
+            rootScope.message = "Error";
+            expect(rootScope.message).toBe("Error");
+            rootScope.$apply();
+
+            timeout.flush();
+
+            expect(rootScope.message).toBeNull();
+        });
+    });
+
+    describe('Testing AngularJS Filter', function () {
+        it('should return only the warm countries', inject(function ($filter) {
+            var filter = $filter;
+            var destinations =
+                [
+                    {
+                        city: "Beijing",
+                        country: "China",
+                        weather:
+                        {
+                            temp: 21
+                        }
+                    },
+                    {
+                        city: "Moscow",
+                        country: "Russia"
+                    },
+                    {
+                        city: "Mexico City",
+                        country: "Mexico",
+                        weather:
+                        {
+                            temp: 12
+                        }
+                    },
+                    {
+                        city: "Lima",
+                        country: "Peru",
+                        weather:
+                        {
+                            temp: 15
+                        }
+                    },
+                ];
+            expect(destinations.length).toBe(4);
+
+            var warmestDestinations = filter("warmestDestinations")(destinations, 15);
+            expect(warmestDestinations.length).toBe(2);
+            expect(warmestDestinations[0].city).toBe("Beijing");
+            expect(warmestDestinations[1].city).toBe("Lima");
+        }));
+    });
+
+    describe('Testing AngularJS Directive', function () {
+
+        var scope, template, httpBackend, isolateScope;
+
+        beforeEach(inject(function ($compile, $httpBackend, $rootScope) {
+            rootScope = $rootScope;
+            scope = rootScope.$new();
+            httpBackend = $httpBackend;
+
+            scope.apiKey = 'xyz';
+
             scope.destination = {
-                city: "Melbourne",
-                country: "Australia"
+                city: 'Tokyo',
+                country: 'Japan'
             };
+
+            var element = angular.element(
+                '<div destination-directive destination="destination" api-key="apiKey" on-remove="remove()"></div>');
+            template = $compile(element)(scope);
+            scope.$digest();
+            isolateScope = element.isolateScope();
+            ctrl = element.controller();
+        }));
+
+        afterEach(function () {
+            httpBackend.verifyNoOutstandingExpectation();
+            httpBackend.verifyNoOutstandingRequest();
+        });
+
+        it('should update the weather for a specific destination', function () {
+            scope.destination =
+                {
+                    city: "Melbourne",
+                    country: "Australia"
+                };
+
             httpBackend.expectGET("http://api.openweathermap.org/data/2.5/weather?q=" + scope.destination.city + "&appid=" + scope.apiKey).respond(
                 {
                     weather: [{ main: 'Rain', detail: 'Light rain' }],
                     main: { temp: 288 }
                 }
             );
-            scope.getWeather(scope.destination);
+
+            isolateScope.getWeather(scope.destination);
+
             httpBackend.flush();
-            expect(scope.destination.weather.main).toBe('Rain');
+
+            expect(scope.destination.weather.main).toBe("Rain");
             expect(scope.destination.weather.temp).toBe(15);
         });
-        it("Deve verificar se removeu a mensagem após 3 segundos", function () {
-            scope.message = 'Error';
-            expect(scope.message).toBe("Error");
-            scope.$apply();
-            timeout.flush();
-            expect(scope.message).toBeNull();
+
+        it('should call the parent controller remove function', function () {
+            scope.removeTest = 1;
+            scope.remove = function () {
+                scope.removeTest++;
+            };
+
+            isolateScope.onRemove();
+            expect(scope.removeTest).toBe(2);
         });
 
-        describe('Teste do Filtro', function () {
+        it('should generate the correct HTML structure', function () {
+            var templateAsHtml = template.html();
 
-            it("Deve retornar apenas destinos acima de um certo grau", inject(function ($filter) {
-                var warmest = $filter('warmestDestinations');
-                var destinations = [
-                    {
-                        city: "Beijing", contry: "China", weather: { temp: 21 }
-                    },
-                    {
-                        city: "Moscou", contry: "Russia", weather: { temp: 09 }
-                    },
-                    {
-                        city: "Mexico City", contry: "Mexico", weather: { temp: 12 }
-                    },
-                    {
-                        city: "Lima", contry: "Peru", weather: { temp: 15 }
-                    }
-                ];
-                expect(destinations.length).toBe(4);
-                var warmestDestinations = warmest(destinations, 15);
-                expect(warmestDestinations.length).toBe(2);
-                expect(warmestDestinations[0].city).toBe("Beijing");
-                expect(warmestDestinations[1].city).toBe("Lima");
-            }));
+            expect(templateAsHtml).toContain('Tokyo, Japan');
+
+            scope.destination.city = 'London';
+            scope.destination.country = 'England';
+
+            scope.$digest();
+            templateAsHtml = template.html();
+
+            expect(templateAsHtml).toContain('London, England');
         });
+
     });
 });

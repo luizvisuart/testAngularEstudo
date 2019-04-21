@@ -25,10 +25,10 @@ testingAngluarApp.controller('testingAngularCtrl', function ($rootScope, $scope,
         $scope.destinations.splice(index, 1);
     };
 
-    $scope.messageWatcher = $scope.$watch('message', function () {
-        if ($scope.message) {
+    $rootScope.messageWatcher = $rootScope.$watch('message', function () {
+        if ($rootScope.message) {
             $timeout(function () {
-                $scope.message = null;
+                $rootScope.message = null;
             }, 3000);
         }
     });
@@ -59,7 +59,7 @@ testingAngluarApp.directive('destinationDirective', function () {
             '<span ng-if="destination.weather">{{ destination.weather.main }},{{ destination.weather.temp }}</span>' +
             '<button ng-click="onRemove()">Remove</button>' +
             '<button ng-click="getWeather(destination)">Update Tempo</button>',
-        controller: function ($http, $scope) {
+        controller: function ($http, $rootScope, $scope) {
             $scope.getWeather = function (destination) {
                 $http.get("http://api.openweathermap.org/data/2.5/weather?q=" + destination.city + "&appid=" + $scope.apiKey).then(function successCallback(response) {
                     if (response.data.weather) {
@@ -68,7 +68,7 @@ testingAngluarApp.directive('destinationDirective', function () {
                         destination.weather.temp = $scope.converterKelvinToCelsius(response.data.main.temp);
                     }
                 }, function errorCallback(error) {
-                    $scope.message = error.data.message;
+                    $rootScope.message = error.data.message;
                 })
             };
 
