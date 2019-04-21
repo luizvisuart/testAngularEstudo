@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test-dev": "karma start",
-    "test": "karma start"
+    "test": "karma start app/js/test/karma.conf.js"
   },
   "repository": {
     "type": "git",
