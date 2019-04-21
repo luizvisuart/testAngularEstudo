@@ -1,8 +1,8 @@
-describe('Testing AngularJS Test Suite', function () {
+describe('Testando o AngularJS Test Suite', function () {
 
     beforeEach(module('testingAngularApp'));
 
-    describe('Testing AngularJS Controller', function () {
+    describe('Testando AngularJS Controller', function () {
         var scope, ctrl, httpBackend, timeout, rootScope;
 
         beforeEach(inject(function ($controller, $rootScope, $httpBackend, $timeout) {
@@ -18,7 +18,7 @@ describe('Testing AngularJS Test Suite', function () {
             httpBackend.verifyNoOutstandingRequest();
         });
 
-        it('should initialize the title in the scope', function () {
+        it('deve inicializar o título no escopo', function () {
             expect(scope.title).toBeDefined();
             expect(scope.title).toBe("Testing AngularJS Applications");
         });
@@ -48,7 +48,7 @@ describe('Testing AngularJS Test Suite', function () {
             expect(scope.destinations[1].country).toBe("Germany");
         });
 
-        it('should remove a destination from the destinations list', function () {
+        it('deve remover um destino da lista de destinos', function () {
             scope.destinations =
                 [
                     {
@@ -74,7 +74,7 @@ describe('Testing AngularJS Test Suite', function () {
             expect(scope.destinations[1]).toBeUndefined();
         });
 
-        it('should remove error message after a fixed period of time', function () {
+        it('deve remover a mensagem de erro após um período fixo de tempo', function () {
             rootScope.message = "Error";
             expect(rootScope.message).toBe("Error");
             rootScope.$apply();
@@ -86,7 +86,7 @@ describe('Testing AngularJS Test Suite', function () {
     });
 
     describe('Testing AngularJS Filter', function () {
-        it('should return only the warm countries', inject(function ($filter) {
+        it('deve retornar apenas os países quentes', inject(function ($filter) {
             var filter = $filter;
             var destinations =
                 [
@@ -128,7 +128,7 @@ describe('Testing AngularJS Test Suite', function () {
         }));
     });
 
-    describe('Testing AngularJS Directive', function () {
+    describe('Testando AngularJS Directive', function () {
 
         var scope, template, httpBackend, isolateScope;
 
@@ -157,7 +157,7 @@ describe('Testing AngularJS Test Suite', function () {
             httpBackend.verifyNoOutstandingRequest();
         });
 
-        it('should update the weather for a specific destination', function () {
+        it('deve atualizar o tempo para um destino específico', function () {
             scope.destination =
                 {
                     city: "Melbourne",
@@ -179,7 +179,7 @@ describe('Testing AngularJS Test Suite', function () {
             expect(scope.destination.weather.temp).toBe(15);
         });
 
-        it('should call the parent controller remove function', function () {
+        it('deve chamar a função de remoção do controlador pai', function () {
             scope.removeTest = 1;
             scope.remove = function () {
                 scope.removeTest++;
@@ -189,7 +189,7 @@ describe('Testing AngularJS Test Suite', function () {
             expect(scope.removeTest).toBe(2);
         });
 
-        it('should generate the correct HTML structure', function () {
+        it('deve gerar a estrutura HTML correta', function () {
             var templateAsHtml = template.html();
 
             expect(templateAsHtml).toContain('Tokyo, Japan');
